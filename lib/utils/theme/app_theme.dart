@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'app_colors.dart';
 
@@ -17,7 +18,7 @@ class AppTheme {
       error: AppColors.error,
     ),
     textTheme: GoogleFonts.poppinsTextTheme().copyWith(
-      bodyMedium: const TextStyle(color: AppColors.textDark, fontSize: 14),
+      bodyMedium: TextStyle(color: AppColors.textDark, fontSize: 14.sp),
       titleMedium: const TextStyle(
         color: AppColors.textDark,
         fontWeight: FontWeight.w600,

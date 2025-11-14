@@ -52,9 +52,13 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           ),
         );
       } else if (userType == 'doctor') {
+        final userData = await SecureStorageService.getUserData();
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const DoctorDashboardScreen()),
+          MaterialPageRoute(
+            builder: (_) =>
+                DoctorDashboardScreen(drName: userData?['name'] ?? ''),
+          ),
         );
       } else {
         Navigator.pushReplacementNamed(context, '/login');

@@ -76,4 +76,44 @@ class AuthController extends StateNotifier<AuthState> {
     state = const AuthState();
     print("👋 User logged out and storage cleared.");
   }
+
+  /// Fetch latest user data from Supabase
+  Future<void> fetchUser() async {
+    try {
+      if (state.userType == null || state.userData == null) return;
+
+      final role = state.userType!;
+      final oldData = state.userData!;
+      Map<String, dynamic>? freshUser;
+
+      if (role == "mr") {
+        freshUser = await supabase
+            .from('mrs')
+            .select()
+            .eq('id', oldData['id'])
+            .maybeSingle();
+      } else {
+        freshUser = await supabase
+            .from('doctors')
+            .select()
+            .eq('id', oldData['id'])
+            .maybeSingle();
+      }
+
+      if (freshUser != null) {
+        // Update state
+        state = state.copyWith(userData: freshUser);
+
+        // Update secure storage also
+        await SecureStorageService.saveUserData(
+          role: role,
+          userData: freshUser,
+        );
+
+        print("🔄 User data refreshed from server");
+      }
+    } catch (e) {
+      print("❌ fetchUser() error: $e");
+    }
+  }
 }

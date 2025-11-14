@@ -89,7 +89,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         } else {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (_) => DoctorDashboardScreen()),
+            MaterialPageRoute(
+              builder: (_) =>
+                  DoctorDashboardScreen(drName: user!['name'] ?? ''),
+            ),
           );
         }
       } else if (next.errorMessage != null) {

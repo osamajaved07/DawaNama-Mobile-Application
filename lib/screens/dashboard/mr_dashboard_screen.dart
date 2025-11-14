@@ -1,5 +1,6 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use
-
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, unused_import
+import 'package:dawanama/features/auth/dashboard/mr_dashboard_providers.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:dawanama/features/auth/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -61,7 +62,7 @@ class MRDashboardScreen extends ConsumerWidget {
     ];
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.primary.withOpacity(0.6),
         leading: Padding(
@@ -105,56 +106,137 @@ class MRDashboardScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Quick Stats Section
-              SizedBox(
-                height: 102.h,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  padding: EdgeInsets.symmetric(horizontal: 12.w),
-                  itemCount: stats.length,
-                  itemBuilder: (context, index) {
-                    final stat = stats[index];
-                    return Container(
-                      width: 150.w,
-                      margin: EdgeInsets.only(right: 12.w),
-                      decoration: BoxDecoration(
-                        color: const Color(0xBDFFFFFF),
-                        border: Border.all(color: Colors.black),
-                        borderRadius: BorderRadius.circular(18.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: const Color(0xFF4E4D4D).withOpacity(0.5),
-                            blurRadius: 4.r,
-                            offset: Offset(2.w, 2.h),
+      body: RefreshIndicator(
+        color: AppColors.primary,
+        onRefresh: () async {
+          ref.read(dashboardRefreshingProvider.notifier).state = true;
+
+          await ref.read(authControllerProvider.notifier).fetchUser();
+
+          await Future.delayed(const Duration(seconds: 1));
+          ref.read(dashboardRefreshingProvider.notifier).state = false;
+        },
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // -------- Your OLD WIDGETS HERE ----------
+                // Quick Stats Section
+                SizedBox(
+                  height: 102.h,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    padding: EdgeInsets.symmetric(horizontal: 12.w),
+                    itemCount: stats.length,
+                    itemBuilder: (context, index) {
+                      final stat = stats[index];
+                      return Container(
+                        width: 150.w,
+                        margin: EdgeInsets.only(right: 12.w),
+                        decoration: BoxDecoration(
+                          color: const Color(0xBDFFFFFF),
+                          border: Border.all(color: Colors.black),
+                          borderRadius: BorderRadius.circular(18.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF4E4D4D).withOpacity(0.5),
+                              blurRadius: 4.r,
+                              offset: Offset(2.w, 2.h),
+                            ),
+                          ],
+                        ),
+                        child: Padding(
+                          padding: EdgeInsets.all(12.w),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                stat['title']!,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 13.sp,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                              SizedBox(height: 6.h),
+                              Text(
+                                stat['value']!,
+                                style: GoogleFonts.poppins(
+                                  fontSize: 18.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black,
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: EdgeInsets.all(12.w),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                SizedBox(height: 20.h),
+
+                // Modules Section
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: modules.length,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 14.h,
+                    crossAxisSpacing: 14.w,
+                    childAspectRatio: 1.1,
+                  ),
+                  itemBuilder: (context, index) {
+                    final mod = modules[index];
+                    return GestureDetector(
+                      onTap: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              '${mod['title']} module coming soon!',
+                            ),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              mod['color1'] as Color,
+                              mod['color2'] as Color,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(18.r),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.3),
+                              blurRadius: 6.r,
+                              offset: Offset(2.w, 3.h),
+                            ),
+                          ],
+                        ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              stat['title']!,
-                              style: GoogleFonts.poppins(
-                                fontSize: 13.sp,
-                                color: Colors.black54,
-                              ),
+                            Icon(
+                              mod['icon'] as IconData,
+                              color: Colors.white,
+                              size: 40.sp,
                             ),
-                            SizedBox(height: 6.h),
+                            SizedBox(height: 10.h),
                             Text(
-                              stat['value']!,
+                              mod['title'] as String,
                               style: GoogleFonts.poppins(
-                                fontSize: 18.sp,
+                                color: Colors.white,
                                 fontWeight: FontWeight.w600,
-                                color: Colors.black,
+                                fontSize: 14.sp,
                               ),
                             ),
                           ],
@@ -163,74 +245,8 @@ class MRDashboardScreen extends ConsumerWidget {
                     );
                   },
                 ),
-              ),
-
-              SizedBox(height: 20.h),
-
-              // Modules Section
-              GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: modules.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 14.h,
-                  crossAxisSpacing: 14.w,
-                  childAspectRatio: 1.1,
-                ),
-                itemBuilder: (context, index) {
-                  final mod = modules[index];
-                  return GestureDetector(
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${mod['title']} module coming soon!'),
-                        ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            mod['color1'] as Color,
-                            mod['color2'] as Color,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(18.r),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.3),
-                            blurRadius: 6.r,
-                            offset: Offset(2.w, 3.h),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            mod['icon'] as IconData,
-                            color: Colors.white,
-                            size: 40.sp,
-                          ),
-                          SizedBox(height: 10.h),
-                          Text(
-                            mod['title'] as String,
-                            style: GoogleFonts.poppins(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14.sp,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
