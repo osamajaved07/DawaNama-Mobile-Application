@@ -1,8 +1,9 @@
+// ignore_for_file: depend_on_referenced_packages
+
 import 'package:dawanama/features/products/product_model.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:url_launcher/url_launcher.dart';
 
 class ProductDetailScreen extends StatelessWidget {

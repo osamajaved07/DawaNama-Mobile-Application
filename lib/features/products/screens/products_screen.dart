@@ -232,6 +232,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
               // info
               Expanded(
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -272,7 +273,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                           ),
                       ],
                     ),
-                    const Spacer(),
+                    SizedBox(height: 8.h),
                     Row(
                       children: [
                         IconButton(
@@ -293,13 +294,17 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                           ),
                         if (p.targetSpecialty != null &&
                             p.targetSpecialty!.isNotEmpty)
-                          Padding(
-                            padding: EdgeInsets.only(left: 8.w),
-                            child: Text(
-                              p.targetSpecialty!.join(', '),
-                              style: GoogleFonts.poppins(
-                                color: Colors.white70,
-                                fontSize: 11.sp,
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.only(left: 8.w),
+                              child: Text(
+                                p.targetSpecialty!.join(', '),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.poppins(
+                                  color: Colors.white70,
+                                  fontSize: 11.sp,
+                                ),
                               ),
                             ),
                           ),
