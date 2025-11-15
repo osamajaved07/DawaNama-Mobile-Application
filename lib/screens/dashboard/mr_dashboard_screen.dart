@@ -1,7 +1,7 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use, unused_import
-import 'package:dawanama/features/auth/dashboard/mr_dashboard_providers.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, un
+import 'package:dawanama/features/dashboard/mr_dashboard_providers.dart';
 import 'package:dawanama/features/auth/auth_controller.dart';
+import 'package:dawanama/features/products/screens/products_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -214,13 +214,22 @@ class MRDashboardScreen extends ConsumerWidget {
                         final mod = modules[index];
                         return GestureDetector(
                           onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  '${mod['title']} module coming soon!',
+                            if (mod['title'] == 'Products') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const ProductsScreen(),
                                 ),
-                              ),
-                            );
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    '${mod['title']} module coming soon!',
+                                  ),
+                                ),
+                              );
+                            }
                           },
                           child: Container(
                             decoration: BoxDecoration(
