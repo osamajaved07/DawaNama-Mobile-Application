@@ -185,8 +185,8 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
           borderRadius: BorderRadius.circular(12.r),
           gradient: LinearGradient(
             colors: [
-              AppColors.primary.withOpacity(0.95),
-              AppColors.primary.withOpacity(0.6),
+              const Color.fromARGB(235, 4, 192, 192).withOpacity(0.95),
+              const Color.fromARGB(255, 144, 191, 191).withOpacity(0.6),
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -273,7 +273,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                           ),
                       ],
                     ),
-                    SizedBox(height: 8.h),
+                    SizedBox(height: 4.h),
                     Row(
                       children: [
                         IconButton(
@@ -292,24 +292,38 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                               color: Colors.white,
                             ),
                           ),
-                        if (p.targetSpecialty != null &&
-                            p.targetSpecialty!.isNotEmpty)
-                          Expanded(
-                            child: Padding(
-                              padding: EdgeInsets.only(left: 8.w),
-                              child: Text(
-                                p.targetSpecialty!.join(', '),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: GoogleFonts.poppins(
-                                  color: Colors.white70,
-                                  fontSize: 11.sp,
-                                ),
-                              ),
-                            ),
-                          ),
+                        // if (p.targetSpecialty != null &&
+                        //     p.targetSpecialty!.isNotEmpty)
+                        //   Expanded(
+                        //     child: Padding(
+                        //       padding: EdgeInsets.only(left: 8.w),
+                        //       child: Text(
+                        //         p.targetSpecialty!.join(', '),
+                        //         maxLines: 1,
+                        //         overflow: TextOverflow.ellipsis,
+                        //         style: GoogleFonts.poppins(
+                        //           color: Colors.white70,
+                        //           fontSize: 11.sp,
+                        //         ),
+                        //       ),
+                        //     ),
+                        //   ),
                       ],
                     ),
+                    if (p.targetSpecialty != null &&
+                        p.targetSpecialty!.isNotEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(left: 8.w),
+                        child: Text(
+                          p.targetSpecialty!.join(', '),
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.poppins(
+                            color: Colors.white70,
+                            fontSize: 11.sp,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -326,6 +340,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
         title: Text(
           'Products',
           style: GoogleFonts.poppins(fontWeight: FontWeight.w600),
@@ -346,123 +361,140 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Search + voice
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: searchCtrl,
-                      decoration: InputDecoration(
-                        hintText: 'Search by name or SKU',
-                        prefixIcon: const Icon(Icons.search),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12.r),
-                        ),
-                        isDense: true,
-                        contentPadding: EdgeInsets.symmetric(vertical: 12.h),
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 10.w),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        // optional voice search
-                      },
-                      icon: const Icon(Icons.mic, color: Colors.white),
-                    ),
-                  ),
-                ],
-              ),
+      extendBodyBehindAppBar: true,
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage(
+              'assets/images/bg6.jpg',
+            ), // or NetworkImage('url')
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.black.withOpacity(
+                0.3,
+              ), // Optional: add overlay for better readability
+              BlendMode.darken,
             ),
-
-            // Categories chips
-            SizedBox(
-              height: 46.h,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                itemCount: categories.length,
-                itemBuilder: (context, i) {
-                  final c = categories[i];
-                  final selected =
-                      ref.watch(productsSelectedCategoryProvider) == c;
-                  return Padding(
-                    padding: EdgeInsets.only(right: 8.w),
-                    child: ChoiceChip(
-                      label: Text(
-                        c,
-                        style: GoogleFonts.poppins(
-                          color: selected ? Colors.white : Colors.black,
+          ),
+        ),
+        child: SafeArea(
+          child: Column(
+            children: [
+              // Search + voice
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: searchCtrl,
+                        decoration: InputDecoration(
+                          hintText: 'Search by name or SKU',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12.r),
+                          ),
+                          isDense: true,
+                          contentPadding: EdgeInsets.symmetric(vertical: 12.h),
                         ),
                       ),
-                      selected: selected,
-                      onSelected: (_) {
-                        ref
-                            .read(productsSelectedCategoryProvider.notifier)
-                            .set(c);
-                      },
-                      selectedColor: AppColors.primary,
-                      backgroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
+                    ),
+                    SizedBox(width: 10.w),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
                         borderRadius: BorderRadius.circular(12.r),
                       ),
+                      child: IconButton(
+                        onPressed: () {
+                          // optional voice search
+                        },
+                        icon: const Icon(Icons.mic, color: Colors.white),
+                      ),
                     ),
-                  );
-                },
+                  ],
+                ),
               ),
-            ),
 
-            // content
-            Expanded(
-              child: listAsync.when(
-                data: (list) {
-                  if (list.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No products found',
-                        style: GoogleFonts.poppins(),
+              // Categories chips
+              SizedBox(
+                height: 46.h,
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  padding: EdgeInsets.symmetric(horizontal: 12.w),
+                  itemCount: categories.length,
+                  itemBuilder: (context, i) {
+                    final c = categories[i];
+                    final selected =
+                        ref.watch(productsSelectedCategoryProvider) == c;
+                    return Padding(
+                      padding: EdgeInsets.only(right: 8.w),
+                      child: ChoiceChip(
+                        label: Text(
+                          c,
+                          style: GoogleFonts.poppins(
+                            color: selected ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        selected: selected,
+                        onSelected: (_) {
+                          ref
+                              .read(productsSelectedCategoryProvider.notifier)
+                              .set(c);
+                        },
+                        selectedColor: AppColors.primary,
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12.r),
+                        ),
                       ),
                     );
-                  }
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      ref.invalidate(productsListProvider);
-                      await Future.delayed(const Duration(milliseconds: 600));
-                    },
-                    child: ListView.builder(
-                      padding: EdgeInsets.symmetric(
-                        vertical: 8.h,
-                        horizontal: 8.w,
-                      ),
-                      itemCount: list.length,
-                      itemBuilder: (context, idx) {
-                        return _productCard(list[idx]);
-                      },
-                    ),
-                  );
-                },
-                loading: () => const Center(
-                  child: SpinKitFadingCircle(color: Colors.blue, size: 36.0),
+                  },
                 ),
-                error: (e, st) => Center(
-                  child: Text(
-                    'Error: ${e.toString()}',
-                    style: GoogleFonts.poppins(),
+              ),
+
+              // content
+              Expanded(
+                child: listAsync.when(
+                  data: (list) {
+                    if (list.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'No products found',
+                          style: GoogleFonts.poppins(),
+                        ),
+                      );
+                    }
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        ref.invalidate(productsListProvider);
+                        await Future.delayed(const Duration(milliseconds: 600));
+                      },
+                      child: ListView.builder(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 8.h,
+                          horizontal: 8.w,
+                        ),
+                        itemCount: list.length,
+                        itemBuilder: (context, idx) {
+                          return _productCard(list[idx]);
+                        },
+                      ),
+                    );
+                  },
+                  loading: () => const Center(
+                    child: SpinKitFadingCircle(color: Colors.blue, size: 36.0),
+                  ),
+                  error: (e, st) => Center(
+                    child: Text(
+                      'Error: ${e.toString()}',
+                      style: GoogleFonts.poppins(),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

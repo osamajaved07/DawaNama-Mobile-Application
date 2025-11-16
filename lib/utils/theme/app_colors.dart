@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 class AppColors {
   // Core Brand Colors
   static const Color primary = Color(0xFF00A8A8);
+  static const Color primaryLight = Color.fromARGB(255, 91, 255, 255);
+
   static const Color primaryDark = Color(0xFF007C7C);
   static const Color accentBlue = Color(0xFF007BFF);
 
