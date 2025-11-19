@@ -11,6 +11,8 @@ class ProductsRepository {
     String? category,
     String? search,
     String? status,
+    String? manufacturer,
+    String? targetSpecialty,
     String sort = 'name.asc',
     int limit = 200,
   }) async {
@@ -25,6 +27,15 @@ class ProductsRepository {
 
       if (status != null && status.isNotEmpty) {
         query = query.eq('status', status);
+      }
+
+      if (manufacturer != null && manufacturer.isNotEmpty) {
+        query = query.eq('manufacturer', manufacturer);
+      }
+
+      if (targetSpecialty != null && targetSpecialty.isNotEmpty) {
+        // Use contains for array field since target_specialty is text[]
+        query = query.contains('target_specialty', '["$targetSpecialty"]');
       }
 
       if (search != null && search.isNotEmpty) {
@@ -44,6 +55,56 @@ class ProductsRepository {
           .toList();
     } catch (e) {
       throw Exception('Failed to fetch products: $e');
+    }
+  }
+
+  /// Fetch distinct manufacturers from products table
+  Future<List<String>> fetchDistinctManufacturers() async {
+    try {
+      final data = await supabase
+          .from('products')
+          .select('manufacturer')
+          .order('manufacturer', ascending: true);
+
+      // Extract unique manufacturers
+      final manufacturers = <String>{};
+      for (final row in data as List) {
+        final manufacturer = row['manufacturer'] as String?;
+        if (manufacturer != null && manufacturer.isNotEmpty) {
+          manufacturers.add(manufacturer);
+        }
+      }
+
+      return manufacturers.toList();
+    } catch (e) {
+      throw Exception('Failed to fetch manufacturers: $e');
+    }
+  }
+
+  /// Fetch distinct target specialties from products table
+  Future<List<String>> fetchDistinctTargetSpecialties() async {
+    try {
+      final data = await supabase
+          .from('products')
+          .select('target_specialty')
+          .order('target_specialty', ascending: true);
+
+      // Extract unique specialties from the array field
+      final specialties = <String>{};
+      for (final row in data as List) {
+        final specialty = row['target_specialty'] as List?;
+        if (specialty != null) {
+          for (final s in specialty) {
+            if (s is String && s.isNotEmpty) {
+              specialties.add(s);
+            }
+          }
+        }
+      }
+
+      return specialties.toList()..sort();
+    } catch (e) {
+      throw Exception('Failed to fetch target specialties: $e');
     }
   }
 

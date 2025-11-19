@@ -58,6 +58,45 @@ class StatusNotifier extends Notifier<String?> {
   void set(String? value) => state = value;
 }
 
+// Manufacturer filter provider
+final productsManufacturerFilterProvider =
+    NotifierProvider<ManufacturerNotifier, String?>(() {
+      return ManufacturerNotifier();
+    });
+
+class ManufacturerNotifier extends Notifier<String?> {
+  @override
+  build() => null;
+
+  void set(String? value) => state = value;
+}
+
+// Target specialty filter provider
+final productsTargetSpecialtyFilterProvider =
+    NotifierProvider<TargetSpecialtyNotifier, String?>(() {
+      return TargetSpecialtyNotifier();
+    });
+
+class TargetSpecialtyNotifier extends Notifier<String?> {
+  @override
+  build() => null;
+
+  void set(String? value) => state = value;
+}
+
+// Providers for distinct values from database
+final distinctManufacturersProvider = FutureProvider<List<String>>((ref) async {
+  final repository = ref.watch(productsRepositoryProvider);
+  return repository.fetchDistinctManufacturers();
+});
+
+final distinctTargetSpecialtiesProvider = FutureProvider<List<String>>((
+  ref,
+) async {
+  final repository = ref.watch(productsRepositoryProvider);
+  return repository.fetchDistinctTargetSpecialties();
+});
+
 // Main products list provider that combines all filters
 final productsListProvider = FutureProvider<List<Product>>((ref) async {
   final repository = ref.watch(productsRepositoryProvider);
@@ -65,11 +104,15 @@ final productsListProvider = FutureProvider<List<Product>>((ref) async {
   final category = ref.watch(productsSelectedCategoryProvider);
   final sort = ref.watch(productsSortProvider);
   final status = ref.watch(productsStatusFilterProvider);
+  final manufacturer = ref.watch(productsManufacturerFilterProvider);
+  final targetSpecialty = ref.watch(productsTargetSpecialtyFilterProvider);
 
   return repository.fetchProducts(
     category: category == 'All' ? null : category,
     search: search.isEmpty ? null : search,
     status: status,
+    manufacturer: manufacturer,
+    targetSpecialty: targetSpecialty,
     sort: sort,
     limit: 500,
   );

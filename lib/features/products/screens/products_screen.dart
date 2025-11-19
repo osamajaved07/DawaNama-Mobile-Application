@@ -48,124 +48,267 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
       context: context,
       isScrollControlled: true,
       builder: (_) {
-        final sort = ref.read(productsSortProvider);
-        String tmpSort = sort;
-        String? tmpStatus = ref.read(productsStatusFilterProvider);
-        return Padding(
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: StatefulBuilder(
-            builder: (ctx, st) {
-              return Container(
-                padding: EdgeInsets.all(16.w),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Filters & Sorting',
-                      style: GoogleFonts.poppins(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
+        return Consumer(
+          builder: (ctx, consumerRef, __) {
+            final sort = consumerRef.read(productsSortProvider);
+            String tmpSort = sort;
+            String? tmpStatus = consumerRef.read(productsStatusFilterProvider);
+            String? tmpManufacturer = consumerRef.read(
+              productsManufacturerFilterProvider,
+            );
+            String? tmpTargetSpecialty = consumerRef.read(
+              productsTargetSpecialtyFilterProvider,
+            );
+
+            final manufacturersAsync = consumerRef.watch(
+              distinctManufacturersProvider,
+            );
+            final specialtiesAsync = consumerRef.watch(
+              distinctTargetSpecialtiesProvider,
+            );
+
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: StatefulBuilder(
+                builder: (ctx, st) {
+                  return Container(
+                    padding: EdgeInsets.all(16.w),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Filters & Sorting',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Status filter
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Status',
+                                  style: GoogleFonts.poppins(),
+                                ),
+                              ),
+                              DropdownButton<String?>(
+                                value: tmpStatus,
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: null,
+                                    child: Text('Any'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Active',
+                                    child: Text('Active'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'Inactive',
+                                    child: Text('Inactive'),
+                                  ),
+                                ],
+                                onChanged: (v) => st(() => tmpStatus = v),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Manufacturer filter (dynamic from database)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Manufacturer',
+                                  style: GoogleFonts.poppins(),
+                                ),
+                              ),
+                              manufacturersAsync.when(
+                                data: (manufacturers) {
+                                  final items = <DropdownMenuItem<String?>>[
+                                    const DropdownMenuItem<String?>(
+                                      value: null,
+                                      child: Text('Any'),
+                                    ),
+                                    ...manufacturers.map(
+                                      (m) => DropdownMenuItem<String?>(
+                                        value: m,
+                                        child: Text(m),
+                                      ),
+                                    ),
+                                  ];
+                                  return DropdownButton<String?>(
+                                    value: tmpManufacturer,
+                                    items: items,
+                                    onChanged: (v) =>
+                                        st(() => tmpManufacturer = v),
+                                  );
+                                },
+                                loading: () => const SizedBox(
+                                  width: 100,
+                                  child: Text('...'),
+                                ),
+                                error: (_, __) => const Text('Error'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Target Specialty filter (dynamic from database)
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Target Specialty',
+                                  style: GoogleFonts.poppins(),
+                                ),
+                              ),
+                              specialtiesAsync.when(
+                                data: (specialties) {
+                                  final items = <DropdownMenuItem<String?>>[
+                                    const DropdownMenuItem<String?>(
+                                      value: null,
+                                      child: Text('Any'),
+                                    ),
+                                    ...specialties.map(
+                                      (s) => DropdownMenuItem<String?>(
+                                        value: s,
+                                        child: Text(s),
+                                      ),
+                                    ),
+                                  ];
+                                  return DropdownButton<String?>(
+                                    value: tmpTargetSpecialty,
+                                    items: items,
+                                    onChanged: (v) =>
+                                        st(() => tmpTargetSpecialty = v),
+                                  );
+                                },
+                                loading: () => const SizedBox(
+                                  width: 100,
+                                  child: Text('...'),
+                                ),
+                                error: (_, __) => const Text('Error'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+
+                          // Sort by
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  'Sort by',
+                                  style: GoogleFonts.poppins(),
+                                ),
+                              ),
+                              DropdownButton<String>(
+                                value: tmpSort,
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: 'name.asc',
+                                    child: Text('Name A → Z'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'name.desc',
+                                    child: Text('Name Z → A'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'created_at.desc',
+                                    child: Text('Newest'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'mrp.asc',
+                                    child: Text('Price Low → High'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: 'mrp.desc',
+                                    child: Text('Price High → Low'),
+                                  ),
+                                ],
+                                onChanged: (v) => st(() => tmpSort = v!),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Apply and Reset buttons
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    consumerRef
+                                        .read(productsSortProvider.notifier)
+                                        .set(tmpSort);
+                                    consumerRef
+                                        .read(
+                                          productsStatusFilterProvider.notifier,
+                                        )
+                                        .set(tmpStatus);
+                                    consumerRef
+                                        .read(
+                                          productsManufacturerFilterProvider
+                                              .notifier,
+                                        )
+                                        .set(tmpManufacturer);
+                                    consumerRef
+                                        .read(
+                                          productsTargetSpecialtyFilterProvider
+                                              .notifier,
+                                        )
+                                        .set(tmpTargetSpecialty);
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Apply'),
+                                ),
+                              ),
+                              SizedBox(width: 12.w),
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    consumerRef
+                                        .read(productsSortProvider.notifier)
+                                        .set('name.asc');
+                                    consumerRef
+                                        .read(
+                                          productsStatusFilterProvider.notifier,
+                                        )
+                                        .set(null);
+                                    consumerRef
+                                        .read(
+                                          productsManufacturerFilterProvider
+                                              .notifier,
+                                        )
+                                        .set(null);
+                                    consumerRef
+                                        .read(
+                                          productsTargetSpecialtyFilterProvider
+                                              .notifier,
+                                        )
+                                        .set(null);
+                                    Navigator.pop(context);
+                                  },
+                                  child: const Text('Reset'),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 32.h),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text('Status', style: GoogleFonts.poppins()),
-                        ),
-                        DropdownButton<String?>(
-                          value: tmpStatus,
-                          items: const [
-                            DropdownMenuItem(value: null, child: Text('Any')),
-                            DropdownMenuItem(
-                              value: 'Active',
-                              child: Text('Active'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'Inactive',
-                              child: Text('Inactive'),
-                            ),
-                          ],
-                          onChanged: (v) => st(() => tmpStatus = v),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text('Sort by', style: GoogleFonts.poppins()),
-                        ),
-                        DropdownButton<String>(
-                          value: tmpSort,
-                          items: const [
-                            DropdownMenuItem(
-                              value: 'name.asc',
-                              child: Text('Name A → Z'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'name.desc',
-                              child: Text('Name Z → A'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'created_at.desc',
-                              child: Text('Newest'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'mrp.asc',
-                              child: Text('Price Low → High'),
-                            ),
-                            DropdownMenuItem(
-                              value: 'mrp.desc',
-                              child: Text('Price High → Low'),
-                            ),
-                          ],
-                          onChanged: (v) => st(() => tmpSort = v!),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: () {
-                              ref
-                                  .read(productsSortProvider.notifier)
-                                  .set(tmpSort);
-                              ref
-                                  .read(productsStatusFilterProvider.notifier)
-                                  .set(tmpStatus);
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Apply'),
-                          ),
-                        ),
-                        SizedBox(width: 12.w),
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () {
-                              ref
-                                  .read(productsSortProvider.notifier)
-                                  .set('name.asc');
-                              ref
-                                  .read(productsStatusFilterProvider.notifier)
-                                  .set(null);
-                              Navigator.pop(context);
-                            },
-                            child: const Text('Reset'),
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12.h),
-                  ],
-                ),
-              );
-            },
-          ),
+                  );
+                },
+              ),
+            );
+          },
         );
       },
     );
