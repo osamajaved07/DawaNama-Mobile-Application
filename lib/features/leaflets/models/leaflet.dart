@@ -3,6 +3,7 @@ class Leaflet {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String productId;
+  final String? productName;
   final String title;
   final String? version;
   final String language;
@@ -32,6 +33,7 @@ class Leaflet {
     required this.createdAt,
     required this.updatedAt,
     required this.productId,
+    this.productName,
     required this.title,
     this.version,
     required this.language,
@@ -63,6 +65,7 @@ class Leaflet {
       createdAt: DateTime.parse(json['created_at']),
       updatedAt: DateTime.parse(json['updated_at']),
       productId: json['product_id'],
+      productName: json['products']?['name'] ?? 'Unknown Product',
       title: json['title'],
       version: json['version'],
       language: json['language'],

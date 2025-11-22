@@ -11,7 +11,7 @@ class LeafletsRepository {
       print('🔍 Fetching leaflets from database...');
       final data = await _client
           .from('leaflets')
-          .select()
+          .select('*, products(name)')
           .order('created_at', ascending: false);
 
       print('📊 Raw data from database: $data');
