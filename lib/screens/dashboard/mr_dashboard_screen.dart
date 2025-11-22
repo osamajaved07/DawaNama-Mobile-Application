@@ -2,6 +2,7 @@
 import 'package:dawanama/features/dashboard/mr_dashboard_providers.dart';
 import 'package:dawanama/features/auth/auth_controller.dart';
 import 'package:dawanama/features/products/screens/products_screen.dart';
+import 'package:dawanama/features/leaflets/screens/leaflets_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -219,6 +220,13 @@ class MRDashboardScreen extends ConsumerWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => const ProductsScreen(),
+                                ),
+                              );
+                            } else if (mod['title'] == 'Leaflets') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const LeafletsScreen(),
                                 ),
                               );
                             } else {
