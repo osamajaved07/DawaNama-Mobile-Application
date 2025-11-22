@@ -188,6 +188,13 @@ class _LeafletDetailScreenState extends State<LeafletDetailScreen>
                           'Created:',
                           _formatDate(widget.leaflet.createdAt),
                         ),
+                        if (widget.leaflet.effectiveDate != null) ...[
+                          Divider(height: 16.h),
+                          _buildDetailRow(
+                            'Effective date:',
+                            _formatDate(widget.leaflet.effectiveDate),
+                          ),
+                        ],
                         Divider(height: 16.h),
                         _buildDetailRow(
                           'Updated:',
@@ -198,6 +205,13 @@ class _LeafletDetailScreenState extends State<LeafletDetailScreen>
                           _buildDetailRow(
                             'Approved:',
                             _formatDate(widget.leaflet.approvalDate),
+                          ),
+                        ],
+                        if (widget.leaflet.approvedBy != null) ...[
+                          Divider(height: 16.h),
+                          _buildDetailRow(
+                            'Approved by:',
+                            widget.leaflet.approvedBy!,
                           ),
                         ],
                         if (widget.leaflet.expiryDate != null) ...[

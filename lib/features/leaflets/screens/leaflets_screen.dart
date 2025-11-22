@@ -1,8 +1,11 @@
+// ignore_for_file: avoid_print, use_super_parameters
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../models/leaflet.dart';
 import '../providers/leaflets_provider.dart';
+import '../providers/favorites_provider.dart';
 import 'leaflet_card.dart';
 
 class LeafletsScreen extends ConsumerStatefulWidget {
@@ -36,7 +39,10 @@ class _LeafletsScreenState extends ConsumerState<LeafletsScreen> {
     super.dispose();
   }
 
-  List<Leaflet> _filterAndSort(List<Leaflet> leaflets) {
+  List<Leaflet> _filterAndSort(
+    List<Leaflet> leaflets,
+    Set<String> favoriteIds,
+  ) {
     var filtered = leaflets.where((leaflet) {
       // Search filter
       if (_searchController.text.isNotEmpty) {
@@ -64,6 +70,11 @@ class _LeafletsScreenState extends ConsumerState<LeafletsScreen> {
         return false;
       }
 
+      // Favorites filter - if sort is set to favorites, only show favorites
+      if (_sortBy == 'favorites' && !favoriteIds.contains(leaflet.id)) {
+        return false;
+      }
+
       return true;
     }).toList();
 
@@ -84,6 +95,10 @@ class _LeafletsScreenState extends ConsumerState<LeafletsScreen> {
       case 'downloads':
         filtered.sort((a, b) => b.downloadCount.compareTo(a.downloadCount));
         break;
+      case 'favorites':
+        // When favorites is selected, sort by latest first
+        filtered.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+        break;
     }
 
     return filtered;
@@ -98,6 +113,7 @@ class _LeafletsScreenState extends ConsumerState<LeafletsScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
         title: const Text('Leaflets'),
         elevation: 4,
         shadowColor: Colors.grey.withOpacity(0.5),
@@ -245,6 +261,16 @@ class _LeafletsScreenState extends ConsumerState<LeafletsScreen> {
                             ],
                           ),
                         ),
+                        const PopupMenuItem(
+                          value: 'favorites',
+                          child: Row(
+                            children: [
+                              Icon(Icons.favorite, size: 18, color: Colors.red),
+                              SizedBox(width: 8),
+                              Text('Favorites Only'),
+                            ],
+                          ),
+                        ),
                       ],
                       child: Chip(
                         label: Text(_sortByLabel(_sortBy)),
@@ -287,7 +313,15 @@ class _LeafletsScreenState extends ConsumerState<LeafletsScreen> {
             Expanded(
               child: leafletsAsyncValue.when(
                 data: (leaflets) {
-                  final filtered = _filterAndSort(leaflets);
+                  final favoriteIds = ref.watch(favoritesProvider);
+                  final filtered = _filterAndSort(leaflets, favoriteIds);
+                  final favoriteLeaflets = filtered
+                      .where((leaflet) => favoriteIds.contains(leaflet.id))
+                      .toList();
+                  final otherLeaflets = filtered
+                      .where((leaflet) => !favoriteIds.contains(leaflet.id))
+                      .toList();
+
                   if (filtered.isEmpty) {
                     return Center(
                       child: Column(
@@ -317,16 +351,92 @@ class _LeafletsScreenState extends ConsumerState<LeafletsScreen> {
                       ),
                     );
                   }
-                  return ListView.builder(
-                    itemCount: filtered.length,
+
+                  return ListView(
                     padding: EdgeInsets.only(bottom: 16.h),
-                    itemBuilder: (context, index) {
-                      final leaflet = filtered[index];
-                      return LeafletCard(
-                        leaflet: leaflet,
-                        onRefresh: () => ref.invalidate(leafletsProvider),
-                      );
-                    },
+                    children: [
+                      // When Favorites sort is selected, show only favorites with no section headers
+                      if (_sortBy == 'favorites') ...[
+                        ...filtered.map(
+                          (leaflet) => LeafletCard(
+                            leaflet: leaflet,
+                            onRefresh: () => ref.invalidate(leafletsProvider),
+                          ),
+                        ),
+                      ] else ...[
+                        // Normal view: Favorites Section first, then All Leaflets
+                        if (favoriteLeaflets.isNotEmpty) ...[
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.favorite,
+                                  color: Colors.red,
+                                  size: 20.sp,
+                                ),
+                                SizedBox(width: 8.w),
+                                Text(
+                                  'Favorites',
+                                  style: Theme.of(context).textTheme.titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 14.sp,
+                                      ),
+                                ),
+                                SizedBox(width: 8.w),
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8.w,
+                                    vertical: 2.h,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red.shade100,
+                                    borderRadius: BorderRadius.circular(12.r),
+                                  ),
+                                  child: Text(
+                                    '${favoriteLeaflets.length}',
+                                    style: TextStyle(
+                                      color: Colors.red.shade700,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12.sp,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          ...favoriteLeaflets.map(
+                            (leaflet) => LeafletCard(
+                              leaflet: leaflet,
+                              onRefresh: () => ref.invalidate(leafletsProvider),
+                            ),
+                          ),
+                          Divider(height: 16.h),
+                        ],
+
+                        // All Leaflets Section
+                        if (otherLeaflets.isNotEmpty) ...[
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
+                            child: Text(
+                              'All Leaflets',
+                              style: Theme.of(context).textTheme.titleMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14.sp,
+                                  ),
+                            ),
+                          ),
+                          ...otherLeaflets.map(
+                            (leaflet) => LeafletCard(
+                              leaflet: leaflet,
+                              onRefresh: () => ref.invalidate(leafletsProvider),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ],
                   );
                 },
                 loading: () => Center(
@@ -380,6 +490,7 @@ class _LeafletsScreenState extends ConsumerState<LeafletsScreen> {
                 ),
               ),
             ),
+            SizedBox(height: 28.h),
           ],
         ),
       ),
@@ -434,6 +545,8 @@ class _LeafletsScreenState extends ConsumerState<LeafletsScreen> {
         return 'Z–A';
       case 'downloads':
         return 'Downloads';
+      case 'favorites':
+        return 'Favorites';
       default:
         return sortBy;
     }

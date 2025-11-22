@@ -1,8 +1,9 @@
-// ignore_for_file: use_build_context_synchronously, deprecated_member_use, un
+// ignore_for_file: use_build_context_synchronously, deprecated_member_use, unnecessary_import
 import 'package:dawanama/features/dashboard/mr_dashboard_providers.dart';
 import 'package:dawanama/features/auth/auth_controller.dart';
 import 'package:dawanama/features/products/screens/products_screen.dart';
 import 'package:dawanama/features/leaflets/screens/leaflets_screen.dart';
+import 'package:dawanama/features/doctors/screens/doctors_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -16,6 +17,13 @@ class MRDashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authControllerProvider);
+    final mrId = authState.userData?['id'] as String? ?? '';
+
+    // DEBUG: Log the full userData structure
+    print('🔍 AUTH STATE userData: ${authState.userData}');
+    print('🔍 Extracted mrId: "$mrId"');
+
     final stats = [
       {'title': 'Total Products', 'value': '50'},
       {'title': 'Training Completed', 'value': '5 / 10'},
@@ -227,6 +235,14 @@ class MRDashboardScreen extends ConsumerWidget {
                                 context,
                                 MaterialPageRoute(
                                   builder: (_) => const LeafletsScreen(),
+                                ),
+                              );
+                            } else if (mod['title'] == 'Doctors') {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) =>
+                                      DoctorsScreen(mrId: mrId, mrName: mrName),
                                 ),
                               );
                             } else {
