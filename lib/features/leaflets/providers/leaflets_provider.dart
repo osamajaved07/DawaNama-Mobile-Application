@@ -5,7 +5,9 @@ import '../repository/leaflets_repository.dart';
 
 final leafletsProvider = FutureProvider<List<Leaflet>>((ref) async {
   final repository = ref.watch(leafletsRepositoryProvider);
-  return repository.fetchLeaflets();
+  final leaflets = await repository.fetchLeaflets();
+  print('✅ Leaflets fetched: ${leaflets.length} leaflets found');
+  return leaflets;
 });
 
 final leafletsRepositoryProvider = Provider<LeafletsRepository>((ref) {

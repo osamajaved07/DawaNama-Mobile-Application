@@ -8,15 +8,23 @@ class LeafletsRepository {
 
   Future<List<Leaflet>> fetchLeaflets() async {
     try {
+      print('🔍 Fetching leaflets from database...');
       final data = await _client
           .from('leaflets')
           .select()
           .order('created_at', ascending: false);
 
-      return (data as List<dynamic>)
+      print('📊 Raw data from database: $data');
+      print('📦 Number of items: ${(data as List).length}');
+
+      final leaflets = (data as List<dynamic>)
           .map((json) => Leaflet.fromJson(json))
           .toList();
+
+      print('✅ Successfully mapped ${leaflets.length} leaflets');
+      return leaflets;
     } catch (e) {
+      print('❌ Error fetching leaflets: $e');
       throw Exception('Failed to fetch leaflets: $e');
     }
   }
